@@ -4,6 +4,7 @@ from google.auth.transport import requests
 from .models import GoogleUser, CustomSession
 import random
 import hashlib
+import datetime
 import time
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
@@ -13,29 +14,15 @@ from django.views.decorators.csrf import csrf_exempt
 #View to handle authentication through google
 @csrf_exempt
 def g_authenticate(request):	
-	print("activated")		
-	
-	#logging.debug(request)
 	
 	if (request.method=='GET'):
-		#return HTTPResponse("This page is meant to consume credentials...")
-		print('get');
+		return HttpResponse("This page is meant to consume credentials...")
 
 	if (request.method=='POST'):
-		print("request recieved")
-		#Validate csrf token
-		# try:
-		# 	print(request.REQUEST())
-		# 	csrf_token_cookie = request.COOKIES.g_csrf_token
-		# 	print("it worked")
-		# except:
-		# 	return HttpResponse(str(request.headers))
+		print(str(request.headers))
 
-
-		
 		#Get JWT
 		token = request.body
-		print(str(token))
 
 		try:
     		# Specify the CLIENT_ID of the app that accesses the backend:
@@ -54,28 +41,7 @@ def g_authenticate(request):
 			userid = idinfo['sub']
 		except ValueError:
 			# Invalid token
-			return HttpResponse("verification failed")
-
-		# #Validate JWT
-		# try:
-		# 	# Specify the CLIENT_ID of the app that accesses the backend:
-		# 	CLIENT_ID = "1089272278877-rhnl6uenbnsk1gkuhu3jb7kedn2suto5.apps.googleusercontent.com"
-		# 	idinfo = id_token.verify_oauth2_token(token, requests.Request(), CLIENT_ID)
-
-		# 	# ID token is valid. Get the user's Google Account ID from the decoded token.
-		# 	sub = idinfo['sub']
-		# except ValueError:
-		# 	# Invalid token
-		# 	return HTTPResponse("ERR_INVALID_JWT")
-
-		
-		# try: 
-		# 	user = GoogleUser.objects.get(sub=sub)
-		# 	user.logins+=1
-		# 	user.save()
-		# except:
-		# 	user = GoogleUser(sub=sub, logins=1)
-		# 	user.save()
+			return HttpResponse("Invalid JSON Web Token")
 
 		# sessionid = get_random_string()
 		# newsession = CustomSession(sessionid=sessionid)
