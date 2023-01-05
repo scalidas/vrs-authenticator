@@ -38,7 +38,13 @@ def g_authenticate(request):
 			# Invalid token
 			return HttpResponse("Invalid JSON Web Token")
 
-
+		try:
+			user = GoogleUser.objects.get(sub=userid)
+			user.logins = user.logins+1
+			user.save()
+		except:
+			user = GoogleUser(sub=userid, logins=1)
+			user.save()
 
 		return HttpResponse("It worked")
 		# sessionid = get_random_string()
