@@ -46,11 +46,13 @@ def g_authenticate(request):
 			user = GoogleUser(sub=userid, logins=1)
 			user.save()
 
+		sessionid = get_random_string()
+		newsession = CustomSession(sessionid=sessionid, user=user)
+		newsession.expiry = datetime.datetime.now() + datetime.timedelta(days=0.5)
+		newsession.save()
+
 		return HttpResponse("It worked")
-		# sessionid = get_random_string()
-		# newsession = CustomSession(sessionid=sessionid)
-		# newsession.expiry = datetime.now() + datetime.timedelta(days=0.5)
-		# newsession.save()
+
 
 
 

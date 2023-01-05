@@ -11,6 +11,7 @@ class GoogleUser(models.Model):
 class CustomSession(models.Model):
     sessionid = models.CharField(max_length=20)
     expiry = models.DateTimeField()
+    user = models.ForeignKey(GoogleUser, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.sessionid
