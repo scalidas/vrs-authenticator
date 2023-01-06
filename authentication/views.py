@@ -8,6 +8,7 @@ import datetime
 import time
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
+import pytz
 
 # Create your views here.
 
@@ -38,6 +39,7 @@ def g_authenticate(request):
 			# Invalid token
 			return HttpResponse("Invalid JSON Web Token")
 
+		#Get existing user or create new user account
 		try:
 			user = GoogleUser.objects.get(sub=userid)
 			user.logins = user.logins+1
@@ -46,16 +48,23 @@ def g_authenticate(request):
 			user = GoogleUser(sub=userid, logins=1)
 			user.save()
 
-		sessionid = get_random_string()
-		newsession = CustomSession(sessionid=sessionid, user=user)
-		newsession.expiry = datetime.datetime.now() + datetime.timedelta(days=0.5)
-		newsession.save()
+		#Check for existing valid sessions or create a new one
+		utc=pytz.UTC
 
-		return HttpResponse("It worked")
+		try:
+			session = CustomSession.objects.get(user=GoogleUser.objects.get(sub=userid))
+			if (utc.localize(datetime.datetime.now())>session.expiry):
+				raise Exception("Session expired")
+			return HttpResponse("Session already exists")
+		except Exception as e:
+			print(e)
+			sessionid = get_random_string()
+			newsession = CustomSession(sessionid=sessionid, user=user)
+			newsession.expiry = datetime.datetime.now() + datetime.timedelta(days=0.5)
+			newsession.save()
+			return HttpResponse("New Session created")
 
-
-
-
+		
 
 def get_random_string(length=12,
 	allowed_chars='abcdefghijklmnopqrstuvwxyz'
